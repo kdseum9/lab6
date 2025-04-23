@@ -1,0 +1,31 @@
+package org.example.command;
+
+import org.example.manager.CollectionManager;
+
+public class HelpCommand extends AbstractCommand {
+    @Override
+    public String execute(String[] arg, CollectionManager collectionManager) {
+        String helpText = ( "Доступные команды:\n" +
+                "help : вывести справку по командам\n" +
+                "info : вывести информацию о коллекции\n" +
+                "show : вывести все элементы коллекции\n" +
+                "add {element} : добавить новый элемент\n" +
+                "update id {element} : обновить элемент по id\n" +
+                "remove_by_id id : удалить элемент по id\n" +
+                "clear : очистить коллекцию\n" +
+                "save : сохранить коллекцию в файл\n" +
+                "execute_script file_name : выполнить скрипт из файла\n" +
+                "exit : завершить программу\n" +
+                "add_if_max : добавить элемент в коллекцию, если его значение превышает значение наибольшего элемента коллекции\n" +
+                "remove_greater {element} : удалить элемент, превышающий заданный\n" +
+                "remove_lower {element} : удалить элемент, меньше заданного\n" +
+                "filter_starts_with_name name : вывести элементы, у которых name начинается с заданной подстроки\n" +
+                "print_descending : вывести элементы в порядке убывания\n" +
+                "print_field_descending_discount : вывести значения поля в порядке убывания");
+
+        logger.info("Help command executed.");
+        System.out.println(helpText);
+
+        return "";
+    }
+}

@@ -1,0 +1,7 @@
+<tickets>
+	<ticket><id>1</id><name>memem</name><creationDate>2025-04-21T21:20:57.961464+03:00[Europe/Moscow]</creationDate><price>null</price><coordinate><x>3.0</x><y>3</y></coordinate></ticket>
+	<ticket><id>2</id><name>first</name><creationDate>2025-04-21T22:03:13.205967300+03:00[Europe/Moscow]</creationDate><price>null</price><coordinate><x>3.0</x><y>3</y></coordinate></ticket>
+	<ticket><id>3</id><name>first</name><creationDate>2025-04-21T22:05:15.742038100+03:00[Europe/Moscow]</creationDate><price>null</price><coordinate><x>3.0</x><y>3</y></coordinate></ticket>
+	<ticket><id>4</id><name>first</name><creationDate>2025-04-21T22:08:01.229453700+03:00[Europe/Moscow]</creationDate><price>null</price><coordinate><x>3.0</x><y>3</y></coordinate></ticket>
+	<ticket><id>5</id><name>first</name><creationDate>2025-04-21T22:08:46.691892900+03:00[Europe/Moscow]</creationDate><price>null</price><coordinate><x>3.0</x><y>3</y></coordinate></ticket>
+</tickets>
