@@ -6,9 +6,18 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Scanner;
 
+/**
+ * Класс для генерации координат {@link Coordinates} через пользовательский ввод.
+ * <p>Проверяет вводимые значения на корректность:
+ * X не должен превышать 300, Y — любое целое число.</p>
+ */
 public class CoordinatesGenerator {
     private static final Logger logger = LoggerFactory.getLogger(CoordinatesGenerator.class);
 
+    /**
+     * Генерирует координаты, запрашивая у пользователя значения X и Y.
+     * @return объект {@link Coordinates} с заданными пользователем координатами
+     */
     public static Coordinates generateCoordinates() {
         logger.info("Generating coordinates...");
         Coordinates coordinates = new Coordinates();
@@ -28,10 +37,14 @@ public class CoordinatesGenerator {
         return coordinates;
     }
 
+    /**
+     * Запрашивает координату X у пользователя. Значение должно быть числом не больше 300.
+     * @return значение X или null, если пользователь оставил поле пустым
+     */
     private static Float generateX() {
         Scanner scanner = new Scanner(System.in);
         while (true) {
-            System.out.println("Enter X coordinate: ");
+            System.out.print("Enter X coordinate: ");
             try {
                 String line = scanner.nextLine();
                 if (line.isEmpty()) {
@@ -51,14 +64,17 @@ public class CoordinatesGenerator {
         }
     }
 
+    /**
+     * Запрашивает координату Y у пользователя. Ожидается целое число.
+     * @return значение Y
+     */
     private static Long generateY() {
         Scanner scanner = new Scanner(System.in);
         while (true) {
-            System.out.println("Enter Y coordinate: ");
+            System.out.print("Enter Y coordinate: ");
             try {
                 String line = scanner.nextLine();
-                Long y = Long.parseLong(line);
-                return y;
+                return Long.parseLong(line);
             } catch (Exception e) {
                 logger.warn("Invalid input for Y coordinate", e);
                 System.out.println("Invalid coordinates entered");

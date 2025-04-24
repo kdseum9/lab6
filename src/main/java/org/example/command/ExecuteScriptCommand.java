@@ -9,20 +9,43 @@ import org.example.model.Venue;
 import org.example.model.enums.TicketType;
 import org.example.model.enums.VenueType;
 
-
 import java.io.*;
 import java.util.Arrays;
 import java.util.Stack;
 
+/**
+ * Команда {@code execute_script} исполняет команды из указанного скриптового файла.
+ * Поддерживает выполнение как обычных команд, так и команд, требующих создания {@link Ticket}.
+ * Предотвращает рекурсивное выполнение скриптов.
+ * <p>
+ * Поддерживаемые специальные команды: {@code add, update, remove_greater, remove_lower, add_if_max}.
+ * Эти команды считывают параметры объекта {@link Ticket} из строк файла.
+ *
+ * @author kdseum9
+ * @version 1.0
+ */
 public class ExecuteScriptCommand extends AbstractCommand {
+
     private final Stack<String> files = new Stack<>();
     private final String[] extraCommands = {"add", "update", "remove_greater", "remove_lower", "add_if_max"};
     private final CommandManager manager;
 
+    /**
+     * Конструктор команды.
+     *
+     * @param manager диспетчер команд, используемый для выполнения обычных команд
+     */
     public ExecuteScriptCommand(CommandManager manager) {
         this.manager = manager;
     }
 
+    /**
+     * Выполняет скрипт из указанного файла.
+     *
+     * @param args аргументы, где второй элемент (args[1]) — путь к скриптовому файлу
+     * @param collectionManager менеджер коллекции, к которому применяются команды
+     * @return строка с результатом выполнения
+     */
     @Override
     public String execute(String[] args, CollectionManager collectionManager) {
         if (args.length < 2) {
@@ -77,6 +100,13 @@ public class ExecuteScriptCommand extends AbstractCommand {
         return "Script executed successfully.";
     }
 
+    /**
+     * Считывает непустую строку из файла.
+     *
+     * @param reader буферизированный ридер
+     * @return строка без пустых строк, либо {@code null}, если достигнут конец файла
+     * @throws IOException при ошибке чтения
+     */
     private String readNonEmptyLine(BufferedReader reader) throws IOException {
         String line;
         do {
@@ -85,6 +115,12 @@ public class ExecuteScriptCommand extends AbstractCommand {
         return line;
     }
 
+    /**
+     * Считывает поля {@link Ticket} из файла скрипта.
+     *
+     * @param reader ридер, читающий скриптовый файл
+     * @return {@link Ticket}, если все поля корректны, иначе {@code null}
+     */
     private Ticket parseTicketFromScript(BufferedReader reader) {
         try {
             String name = readNonEmptyLine(reader);

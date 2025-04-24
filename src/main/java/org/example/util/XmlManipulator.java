@@ -14,21 +14,33 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.LinkedHashSet;
-import java.util.Timer;
 
+/**
+ * Класс XmlManipulator предоставляет функциональность
+ * для сериализации и десериализации коллекции {@link Ticket} в/из XML-файла.
+ */
 public class XmlManipulator {
 
     private String path;
     private LinkedHashSet<Ticket> tickets;
     private static final Logger logger = LoggerFactory.getLogger(XmlManipulator.class);
 
+    /**
+     * Конструктор класса XmlManipulator.
+     *
+     * @param path    путь к XML-файлу
+     * @param tickets коллекция билетов, с которой будет вестись работа
+     */
     public XmlManipulator(String path, LinkedHashSet<Ticket> tickets) {
         this.path = path;
         this.tickets = tickets;
     }
 
+    /**
+     * Сохраняет коллекцию {@link Ticket} в XML-файл.
+     * Использует метод {@code toXML()} у каждого объекта {@link Ticket}.
+     */
     public void write() {
         File file = new File(path);
         if (!file.exists() || file.isDirectory() || !file.canWrite()) {
@@ -36,26 +48,27 @@ public class XmlManipulator {
             return;
         }
 
-        try {
-            // цепочка потоков Stream Chains
-            BufferedOutputStream fileStream = new BufferedOutputStream(new FileOutputStream(path));
-            OutputStreamWriter output = new OutputStreamWriter(fileStream);
+        try (BufferedOutputStream fileStream = new BufferedOutputStream(new FileOutputStream(path));
+             OutputStreamWriter output = new OutputStreamWriter(fileStream)) {
 
-            String xml = "<tickets>";
+            StringBuilder xml = new StringBuilder("<tickets>");
             for (Ticket ticket : tickets) {
-                xml += "\n\t" + ticket.toXML();
+                xml.append("\n\t").append(ticket.toXML());
             }
-            xml += "\n</tickets>";
+            xml.append("\n</tickets>");
 
-            output.write(xml);
+            output.write(xml.toString());
             output.flush();
-            fileStream.close();
             logger.info("Successfully wrote {} tickets to file {}", tickets.size(), file.getAbsolutePath());
         } catch (Exception e) {
             logger.error("Failed to write XML file: {}", file.getAbsolutePath(), e);
         }
     }
 
+    /**
+     * Загружает данные из XML-файла в коллекцию {@link Ticket}.
+     * Создаёт новые экземпляры {@link Ticket} и {@link Coordinates} на основе считанных данных.
+     */
     public void read() {
         File file = new File(path);
 
@@ -65,18 +78,13 @@ public class XmlManipulator {
         }
 
         try {
-            // Получение фабрики, чтобы после получить билдер документов.
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-
-            // Получили из фабрики билдер, который парсит XML, создает структуру Document в виде иерархического дерева.
             DocumentBuilder db = dbf.newDocumentBuilder();
-
-            // Запарсили XML, создав структуру Document. Теперь у нас есть доступ ко всем элементам, каким нам нужно.
             Document doc = db.parse(file);
 
             NodeList nl = doc.getElementsByTagName("ticket");
             if (nl.getLength() == 0) {
-               logger.warn("No tickets found in XML file.");
+                logger.warn("No tickets found in XML file.");
                 return;
             } else {
                 logger.info("Found {} tickets in XML file.", nl.getLength());
@@ -85,6 +93,7 @@ public class XmlManipulator {
             for (int i = 0; i < nl.getLength(); i++) {
                 Element objectElement = (Element) nl.item(i);
                 Ticket ticket = new Ticket();
+
                 ticket.setName(objectElement.getElementsByTagName("name").item(0).getTextContent());
 
                 Coordinates coordinates = new Coordinates();
@@ -99,16 +108,26 @@ public class XmlManipulator {
         } catch (ParserConfigurationException | IOException e) {
             logger.error("XML parsing failed: {}", e.getMessage());
             System.exit(1);
-        } catch (SAXException e){
+        } catch (SAXException e) {
             logger.warn("XML file is empty or invalid format.");
             System.exit(1);
         }
     }
 
+    /**
+     * Возвращает путь к XML-файлу.
+     *
+     * @return путь к файлу
+     */
     public String getPath() {
         return path;
     }
 
+    /**
+     * Устанавливает путь к XML-файлу.
+     *
+     * @param path путь к файлу
+     */
     public void setPath(String path) {
         this.path = path;
     }

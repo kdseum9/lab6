@@ -6,10 +6,18 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Scanner;
 
+/**
+ * Класс для создания объекта {@link Ticket} с вводом данных с консоли.
+ * Включает в себя генерацию всех необходимых полей билета.
+ */
 public class TicketInput {
 
     private static final Logger logger = LoggerFactory.getLogger(TicketInput.class);
 
+    /**
+     * Генерирует новый объект {@link Ticket}, запрашивая все данные у пользователя.
+     * @return Сгенерированный объект Ticket
+     */
     public static Ticket generateTicket() {
         logger.info("Generating new ticket...");
         Ticket ticket = new Ticket();
@@ -23,6 +31,10 @@ public class TicketInput {
         return ticket;
     }
 
+    /**
+     * Запрашивает у пользователя имя билета.
+     * @return Введённое имя
+     */
     private static String generateName() {
         Scanner scanner = new Scanner(System.in);
         while (true) {
@@ -37,6 +49,10 @@ public class TicketInput {
         }
     }
 
+    /**
+     * Запрашивает у пользователя цену билета.
+     * @return Цена билета в виде целого числа
+     */
     private static int generatePrice() {
         Scanner scanner = new Scanner(System.in);
         while (true) {
@@ -57,6 +73,11 @@ public class TicketInput {
         }
     }
 
+    /**
+     * Запрашивает у пользователя скидку на билет.
+     * Может вернуть null, если скидка не указана.
+     * @return Скидка как Double или null
+     */
     private static Double generateDiscount() {
         Scanner scanner = new Scanner(System.in);
         while (true) {
@@ -84,4 +105,4 @@ public class TicketInput {
             }
         }
     }
-    }
+}

@@ -7,17 +7,28 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Scanner;
 
+/**
+ * Класс для генерации объекта {@link Venue} с вводом данных от пользователя.
+ */
 public class VenueGenerator {
     private static final Logger logger = LoggerFactory.getLogger(VenueGenerator.class);
 
+    /**
+     * Генерирует новый объект {@link Venue}, запрашивая у пользователя необходимые данные:
+     * ID, имя, вместимость и тип.
+     *
+     * @return Сгенерированный объект Venue
+     */
     public static Venue generateVenue() {
         logger.info("Generating venue...");
         Scanner scanner = new Scanner(System.in);
         Venue venue = new Venue();
 
+        // Установка ID
         venue.setId(IdGenerator.generateId());
         logger.info("Venue ID generated: {}", venue.getId());
 
+        // Ввод имени места проведения
         while (true) {
             System.out.print("Enter venue name: ");
             String name = scanner.nextLine().trim();
@@ -30,6 +41,7 @@ public class VenueGenerator {
             System.out.println("Venue name cannot be empty!");
         }
 
+        // Ввод вместимости
         while (true) {
             System.out.print("Enter venue capacity (> 0): ");
             try {
@@ -48,6 +60,7 @@ public class VenueGenerator {
             }
         }
 
+        // Ввод типа места проведения (может быть пустым)
         System.out.print("Enter venue type (or leave empty): ");
         String typeInput = scanner.nextLine().trim();
         if (!typeInput.isEmpty()) {
@@ -69,4 +82,3 @@ public class VenueGenerator {
         return venue;
     }
 }
-

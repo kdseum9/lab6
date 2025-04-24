@@ -1,25 +1,50 @@
 package org.example.model;
 
-
 import org.example.manager.CoordinatesValidator;
 import org.example.manager.TicketValidator;
 import org.example.manager.VenueValidator;
 import org.example.model.enums.TicketType;
 import org.example.model.enums.VenueType;
 import org.example.model.generator.IdGenerator;
+
 import java.time.ZonedDateTime;
 import java.util.Objects;
 
+/**
+ * Представляет билет с уникальным идентификатором, названием, координатами, датой создания,
+ * ценой, скидкой, типом и местом проведения.
+ * <p>
+ * Используется для хранения информации о билетах и генерации XML-представления.
+ */
 public class Ticket implements Comparable<Ticket> {
-    private long id; //Значение поля должно быть больше 0, Значение этого поля должно быть уникальным, Значение этого поля должно генерироваться автоматически
-    private String name; //Поле не может быть null, Строка не может быть пустой
-    private Coordinates coordinates; //Поле не может быть null
-    private ZonedDateTime creationDate; //Поле не может быть null, Значение этого поля должно генерироваться автоматически
-    private Integer price; //Значение поля должно быть больше 0
-    private Double discount; //Поле может быть null, Значение поля должно быть больше 0, Максимальное значение поля: 100
-    private TicketType type; //Поле не может быть null
-    private Venue venue; //Поле может быть null
 
+    /** Уникальный идентификатор билета. Генерируется автоматически, должен быть > 0. */
+    private long id;
+
+    /** Название билета. Не может быть null или пустым. */
+    private String name;
+
+    /** Координаты, связанные с билетом. Не могут быть null. */
+    private Coordinates coordinates;
+
+    /** Дата и время создания билета. Генерируется автоматически. */
+    private ZonedDateTime creationDate;
+
+    /** Цена билета. Должна быть больше 0. */
+    private Integer price;
+
+    /** Скидка на билет. Может быть null, значение должно быть больше 0 и не превышать 100. */
+    private Double discount;
+
+    /** Тип билета. Не может быть null. */
+    private TicketType type;
+
+    /** Место проведения мероприятия. Может быть null. */
+    private Venue venue;
+
+    /**
+     * Конструктор по умолчанию. Создаёт билет с автоматически сгенерированными значениями id и creationDate.
+     */
     public Ticket() {
         this.id = IdGenerator.generateId();
         this.name = null;
@@ -29,73 +54,25 @@ public class Ticket implements Comparable<Ticket> {
         this.discount = null;
         this.type = null;
         this.venue = null;
-
     }
 
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Coordinates getCoordinates() {
-        return coordinates;
-    }
-
-    public void setCoordinates(Coordinates coordinates) {
-        this.coordinates = coordinates;
-    }
-
-    public ZonedDateTime getCreationDate() {
-        return creationDate;
-    }
-
-    public void setCreationDate(ZonedDateTime creationDate) {
-        this.creationDate = creationDate;
-    }
-
-    public int getPrice() {
-        return price;
-    }
-
-    public void setPrice(int price) {
-        this.price = price;
-    }
-
-    public Double getDiscount() {
-        return discount;
-    }
-
-    public void setDiscount(Double discount) {
-        this.discount = discount;
-    }
-
-    public TicketType getType() {
-        return type;
-    }
-
-    public void setType(TicketType type) {
-        this.type = type;
-    }
-
-    public Venue getVenue() {
-        return venue;
-    }
-
-    public void setVenue(Venue venue) {
-        this.venue = venue;
-    }
-
+    /**
+     * Полный конструктор на основе строковых параметров. Валидирует значения перед созданием объекта.
+     *
+     * @param id          строковое представление идентификатора
+     * @param name        название билета
+     * @param X           координата X
+     * @param Y           координата Y
+     * @param creationDate дата создания (в формате ISO-8601)
+     * @param price       цена
+     * @param discount    скидка
+     * @param type        тип билета
+     * @param venueId     идентификатор места проведения
+     * @param venueName   название места проведения
+     * @param capacity    вместимость места
+     * @param venueType   тип места
+     * @throws Exception если одно из значений не прошло валидацию
+     */
     public Ticket(String id, String name, String X, String Y, String creationDate, String price, String discount, String type, String venueId, String venueName, String capacity, String venueType) throws Exception {
         TicketValidator.idIsOK(id);
         TicketValidator.inputIsNotEmpty(name, "NAME");
@@ -120,6 +97,11 @@ public class Ticket implements Comparable<Ticket> {
         this.venue = new Venue(Long.parseLong(id), venueName, Integer.parseInt(capacity), VenueType.valueOf(type));
     }
 
+    /**
+     * Преобразует объект билета в XML-представление.
+     *
+     * @return XML-строка, представляющая билет.
+     */
     public String toXML() {
         String xmlFormat = "<ticket>" +
                 "<id>" + id + "</id>" +
@@ -137,6 +119,107 @@ public class Ticket implements Comparable<Ticket> {
         return xmlFormat;
     }
 
+    // Геттеры и сеттеры с описанием
+
+    /** @return идентификатор билета */
+    public long getId() {
+        return id;
+    }
+
+    /** @param id устанавливает идентификатор билета */
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    /** @return название билета */
+    public String getName() {
+        return name;
+    }
+
+    /** @param name устанавливает название билета */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /** @return координаты билета */
+    public Coordinates getCoordinates() {
+        return coordinates;
+    }
+
+    /** @param coordinates устанавливает координаты */
+    public void setCoordinates(Coordinates coordinates) {
+        this.coordinates = coordinates;
+    }
+
+    /** @return дата создания билета */
+    public ZonedDateTime getCreationDate() {
+        return creationDate;
+    }
+
+    /** @param creationDate устанавливает дату создания */
+    public void setCreationDate(ZonedDateTime creationDate) {
+        this.creationDate = creationDate;
+    }
+
+    /** @return цена билета */
+    public int getPrice() {
+        return price;
+    }
+
+    /** @param price устанавливает цену билета */
+    public void setPrice(int price) {
+        this.price = price;
+    }
+
+    /** @return скидка на билет */
+    public Double getDiscount() {
+        return discount;
+    }
+
+    /** @param discount устанавливает скидку */
+    public void setDiscount(Double discount) {
+        this.discount = discount;
+    }
+
+    /** @return тип билета */
+    public TicketType getType() {
+        return type;
+    }
+
+    /** @param type устанавливает тип билета */
+    public void setType(TicketType type) {
+        this.type = type;
+    }
+
+    /** @return место проведения */
+    public Venue getVenue() {
+        return venue;
+    }
+
+    /** @param venue устанавливает место проведения */
+    public void setVenue(Venue venue) {
+        this.venue = venue;
+    }
+
+    /**
+     * Сравнивает билеты по цене. Null считается меньшим.
+     *
+     * @param other другой билет
+     * @return результат сравнения
+     */
+    @Override
+    public int compareTo(Ticket other) {
+        if (this.price == null && other.price == null) return 0;
+        if (this.price == null) return -1;
+        if (other.price == null) return 1;
+        return Integer.compare(this.price, other.price);
+    }
+
+    /**
+     * Возвращает строковое представление билета.
+     *
+     * @return строка с информацией о билете
+     */
     @Override
     public String toString() {
         return "Ticket{" +
@@ -151,30 +234,34 @@ public class Ticket implements Comparable<Ticket> {
                 '}';
     }
 
-    @Override
-    public int compareTo(Ticket other) {
-        if (this.price == null && other.price == null) return 0;
-        if (this.price == null) return -1;
-        if (other.price == null) return 1;
-        return Integer.compare(this.price, other.price);
-    }
-
+    /**
+     * Проверяет равенство двух объектов Ticket.
+     *
+     * @param o объект для сравнения
+     * @return true, если объекты равны
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Ticket ticket = (Ticket) o;
-        return id == ticket.id && Objects.equals(name, ticket.name) && Objects.equals(coordinates, ticket.coordinates) && Objects.equals(creationDate, ticket.creationDate) && Objects.equals(price, ticket.price) && Objects.equals(discount, ticket.discount) && type == ticket.type && Objects.equals(venue, ticket.venue);
+        return id == ticket.id &&
+                Objects.equals(name, ticket.name) &&
+                Objects.equals(coordinates, ticket.coordinates) &&
+                Objects.equals(creationDate, ticket.creationDate) &&
+                Objects.equals(price, ticket.price) &&
+                Objects.equals(discount, ticket.discount) &&
+                type == ticket.type &&
+                Objects.equals(venue, ticket.venue);
     }
 
+    /**
+     * Вычисляет хэш-код для объекта Ticket.
+     *
+     * @return хэш-код
+     */
     @Override
     public int hashCode() {
         return Objects.hash(id, name, coordinates, creationDate, price, discount, type, venue);
     }
-
 }
-
-
-
-
-

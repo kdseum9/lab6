@@ -2,13 +2,27 @@ package org.example.command;
 
 import org.example.manager.CollectionManager;
 import org.example.model.Ticket;
-import org.example.model.generator.TicketInput;
 
 import java.util.Optional;
 
-public class RemoveByIdCommand extends AbstractCommand{
-    @Override
+/**
+ * <p>Команда для удаления объекта {@link Ticket} по его <code>ID</code>.</p>
+ *
+ * <p>Если объект с указанным ID найден в коллекции, он будет удалён.</p>
+ *
+ * @author kdseum9
+ * @version 1.0
+ */
+public class RemoveByIdCommand extends AbstractCommand {
 
+    /**
+     * <p>Выполняет команду <code>remove_by_id</code>.</p>
+     *
+     * @param args аргументы команды, где второй аргумент — ID
+     * @param collectionManager менеджер коллекции
+     * @return результат выполнения команды (null)
+     */
+    @Override
     public String execute(String[] args, CollectionManager collectionManager) {
         if (args.length < 2) {
             System.out.println("Please provide an ID.");

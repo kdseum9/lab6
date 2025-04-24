@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 
-public class CollectionManager {
+public class CollectionManager  {
     private final LocalDateTime timeOfInitial = LocalDateTime.now();
     private LinkedHashSet<Ticket> collection = new LinkedHashSet<>();
     private final XmlManipulator xmlManipulator;

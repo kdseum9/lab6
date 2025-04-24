@@ -4,12 +4,23 @@ import org.example.command.*;
 
 import java.util.HashMap;
 
+/**
+ * Менеджер команд, осуществляющий регистрацию и выполнение доступных команд.
+ * <p>Хранит отображение названий команд на соответствующие классы и передаёт управление при выполнении.</p>
+ */
 public class CommandManager {
     private final CollectionManager collectionManager;
     private final HashMap<String, AbstractCommand> commands = new HashMap<>();
 
+    /**
+     * Конструктор инициализирует все доступные команды.
+     *
+     * @param collectionManager менеджер коллекции, с которым работают команды
+     */
     public CommandManager(CollectionManager collectionManager) {
         this.collectionManager = collectionManager;
+
+        // Регистрация всех доступных команд
         commands.put("info", new InfoCommand());
         commands.put("add", new AddCommand());
         commands.put("show", new ShowCommand());
@@ -28,6 +39,11 @@ public class CommandManager {
         commands.put("print_field_descending_discount", new PrintFieldDescendingDiscountCommand());
     }
 
+    /**
+     * Выполняет команду, соответствующую переданному вводу.
+     *
+     * @param input массив строк, где первый элемент — название команды, а остальные — её аргументы
+     */
     public void doCommand(String[] input) {
         String command = input[0];
         if (commands.containsKey(command)) {

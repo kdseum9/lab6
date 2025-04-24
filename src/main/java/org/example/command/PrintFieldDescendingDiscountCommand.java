@@ -7,8 +7,24 @@ import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
 
-
+/**
+ * <p>Команда для вывода значений поля <code>discount</code> всех объектов {@link Ticket} в порядке убывания.</p>
+ *
+ * <p>Если скидки равны нулю или отсутствуют, они игнорируются.</p>
+ * <p>Вывод происходит в консоль в формате: <code>- 10.50%</code></p>
+ *
+ * @author kdseum9
+ * @version 1.0
+ */
 public class PrintFieldDescendingDiscountCommand extends AbstractCommand {
+
+    /**
+     * <p>Выполняет команду <code>print_field_descending_discount</code>.</p>
+     *
+     * @param args аргументы команды (не используются)
+     * @param collectionManager менеджер, управляющий коллекцией
+     * @return <code>null</code> — результат выводится в консоль
+     */
     @Override
     public String execute(String[] args, CollectionManager collectionManager) {
         LinkedHashSet<Ticket> collection = collectionManager.getCollection();
@@ -23,7 +39,7 @@ public class PrintFieldDescendingDiscountCommand extends AbstractCommand {
                 .map(Ticket::getDiscount)
                 .filter(discount -> discount != null && discount > 0)
                 .sorted(Comparator.reverseOrder())
-                .toList();
+                .toList(); // Java 16+
 
         if (!discounts.isEmpty()) {
             System.out.println("Discount values (descending):");
