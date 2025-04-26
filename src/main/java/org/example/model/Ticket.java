@@ -18,28 +18,44 @@ import java.util.Objects;
  */
 public class Ticket implements Comparable<Ticket> {
 
-    /** Уникальный идентификатор билета. Генерируется автоматически, должен быть > 0. */
+    /**
+     * Уникальный идентификатор билета. Генерируется автоматически, должен быть > 0.
+     */
     private long id;
 
-    /** Название билета. Не может быть null или пустым. */
+    /**
+     * Название билета. Не может быть null или пустым.
+     */
     private String name;
 
-    /** Координаты, связанные с билетом. Не могут быть null. */
+    /**
+     * Координаты, связанные с билетом. Не могут быть null.
+     */
     private Coordinates coordinates;
 
-    /** Дата и время создания билета. Генерируется автоматически. */
+    /**
+     * Дата и время создания билета. Генерируется автоматически.
+     */
     private ZonedDateTime creationDate;
 
-    /** Цена билета. Должна быть больше 0. */
+    /**
+     * Цена билета. Должна быть больше 0.
+     */
     private Integer price;
 
-    /** Скидка на билет. Может быть null, значение должно быть больше 0 и не превышать 100. */
+    /**
+     * Скидка на билет. Может быть null, значение должно быть больше 0 и не превышать 100.
+     */
     private Double discount;
 
-    /** Тип билета. Не может быть null. */
+    /**
+     * Тип билета. Не может быть null.
+     */
     private TicketType type;
 
-    /** Место проведения мероприятия. Может быть null. */
+    /**
+     * Место проведения мероприятия. Может быть null.
+     */
     private Venue venue;
 
     /**
@@ -59,18 +75,18 @@ public class Ticket implements Comparable<Ticket> {
     /**
      * Полный конструктор на основе строковых параметров. Валидирует значения перед созданием объекта.
      *
-     * @param id          строковое представление идентификатора
-     * @param name        название билета
-     * @param X           координата X
-     * @param Y           координата Y
+     * @param id           строковое представление идентификатора
+     * @param name         название билета
+     * @param X            координата X
+     * @param Y            координата Y
      * @param creationDate дата создания (в формате ISO-8601)
-     * @param price       цена
-     * @param discount    скидка
-     * @param type        тип билета
-     * @param venueId     идентификатор места проведения
-     * @param venueName   название места проведения
-     * @param capacity    вместимость места
-     * @param venueType   тип места
+     * @param price        цена
+     * @param discount     скидка
+     * @param type         тип билета
+     * @param venueId      идентификатор места проведения
+     * @param venueName    название места проведения
+     * @param capacity     вместимость места
+     * @param venueType    тип места
      * @throws Exception если одно из значений не прошло валидацию
      */
     public Ticket(String id, String name, String X, String Y, String creationDate, String price, String discount, String type, String venueId, String venueName, String capacity, String venueType) throws Exception {
@@ -121,82 +137,114 @@ public class Ticket implements Comparable<Ticket> {
 
     // Геттеры и сеттеры с описанием
 
-    /** @return идентификатор билета */
+    /**
+     * @return идентификатор билета
+     */
     public long getId() {
         return id;
     }
 
-    /** @param id устанавливает идентификатор билета */
+    /**
+     * @param id устанавливает идентификатор билета
+     */
     public void setId(long id) {
         this.id = id;
     }
 
-    /** @return название билета */
+    /**
+     * @return название билета
+     */
     public String getName() {
         return name;
     }
 
-    /** @param name устанавливает название билета */
+    /**
+     * @param name устанавливает название билета
+     */
     public void setName(String name) {
         this.name = name;
     }
 
-    /** @return координаты билета */
+    /**
+     * @return координаты билета
+     */
     public Coordinates getCoordinates() {
         return coordinates;
     }
 
-    /** @param coordinates устанавливает координаты */
+    /**
+     * @param coordinates устанавливает координаты
+     */
     public void setCoordinates(Coordinates coordinates) {
         this.coordinates = coordinates;
     }
 
-    /** @return дата создания билета */
+    /**
+     * @return дата создания билета
+     */
     public ZonedDateTime getCreationDate() {
         return creationDate;
     }
 
-    /** @param creationDate устанавливает дату создания */
+    /**
+     * @param creationDate устанавливает дату создания
+     */
     public void setCreationDate(ZonedDateTime creationDate) {
         this.creationDate = creationDate;
     }
 
-    /** @return цена билета */
+    /**
+     * @return цена билета
+     */
     public int getPrice() {
         return price;
     }
 
-    /** @param price устанавливает цену билета */
+    /**
+     * @param price устанавливает цену билета
+     */
     public void setPrice(int price) {
         this.price = price;
     }
 
-    /** @return скидка на билет */
+    /**
+     * @return скидка на билет
+     */
     public Double getDiscount() {
         return discount;
     }
 
-    /** @param discount устанавливает скидку */
+    /**
+     * @param discount устанавливает скидку
+     */
     public void setDiscount(Double discount) {
         this.discount = discount;
     }
 
-    /** @return тип билета */
+    /**
+     * @return тип билета
+     */
     public TicketType getType() {
         return type;
     }
 
-    /** @param type устанавливает тип билета */
+    /**
+     * @param type устанавливает тип билета
+     */
     public void setType(TicketType type) {
         this.type = type;
     }
 
-    /** @return место проведения */
+    /**
+     * @return место проведения
+     */
     public Venue getVenue() {
         return venue;
     }
 
-    /** @param venue устанавливает место проведения */
+    /**
+     * @param venue устанавливает место проведения
+     */
     public void setVenue(Venue venue) {
         this.venue = venue;
     }
@@ -264,4 +312,5 @@ public class Ticket implements Comparable<Ticket> {
     public int hashCode() {
         return Objects.hash(id, name, coordinates, creationDate, price, discount, type, venue);
     }
+
 }

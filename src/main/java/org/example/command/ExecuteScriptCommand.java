@@ -4,7 +4,7 @@ import org.example.manager.CollectionManager;
 import org.example.manager.CommandManager;
 import org.example.model.Coordinates;
 import org.example.model.Ticket;
-import org.example.model.Validation.TicketValidator;
+import org.example.manager.TicketValidator;
 import org.example.model.Venue;
 import org.example.model.enums.TicketType;
 import org.example.model.enums.VenueType;

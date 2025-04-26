@@ -1,6 +1,7 @@
 package org.example.model.generator;
 
 import org.example.model.Ticket;
+import org.example.model.enums.TicketType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +27,7 @@ public class TicketInput {
         ticket.setCoordinates(CoordinatesGenerator.generateCoordinates());
         ticket.setPrice(generatePrice());
         ticket.setDiscount(generateDiscount());
+        ticket.setType(generateTicketType());
         ticket.setVenue(VenueGenerator.generateVenue());
         logger.info("Ticket successfully generated with ID {}", ticket.getId());
         return ticket;
@@ -105,4 +107,27 @@ public class TicketInput {
             }
         }
     }
+
+    private static TicketType generateTicketType() {
+        Scanner scanner = new Scanner(System.in);
+        while (true) {
+            System.out.print("Enter ticket type (VIP, USUAL, BUDGETARY, CHEAP) or leave empty: ");
+            String input = scanner.nextLine().trim();
+
+            if (input.isEmpty()) {
+                logger.info("No ticket type provided, set as null");
+                return null;
+            }
+
+            try {
+                TicketType type = TicketType.valueOf(input.toUpperCase());
+                logger.info("Ticket type set: {}", type);
+                return type;
+            } catch (IllegalArgumentException e) {
+                logger.warn("Invalid ticket type entered: {}", input);
+                System.out.println("Invalid ticket type! Please enter one of: VIP, USUAL, BUDGETARY, CHEAP.");
+            }
+        }
+    }
+
 }

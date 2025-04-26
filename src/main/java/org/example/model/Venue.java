@@ -110,4 +110,8 @@ public class Venue {
     public int hashCode() {
         return Objects.hash(id, venueName, capacity, type);
     }
+
+    public String getName() {
+        return venueName;
+    }
 }
