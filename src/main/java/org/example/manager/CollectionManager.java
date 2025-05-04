@@ -21,7 +21,8 @@ public class CollectionManager  {
         xmlManipulator.read();
     }
 
-    public void add(Ticket ticket) {
+    public
+    void add(Ticket ticket) {
         collection.add(ticket);
         logger.info("Added ticket: {}", ticket);
     }

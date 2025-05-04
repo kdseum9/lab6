@@ -41,7 +41,7 @@ public class Ticket implements Comparable<Ticket> {
     /**
      * Цена билета. Должна быть больше 0.
      */
-    private Integer price;
+    private int price;
 
     /**
      * Скидка на билет. Может быть null, значение должно быть больше 0 и не превышать 100.
@@ -66,10 +66,12 @@ public class Ticket implements Comparable<Ticket> {
         this.name = null;
         this.coordinates = null;
         this.creationDate = ZonedDateTime.now();
-        this.price = null;
+        this.price = -1;
         this.discount = null;
         this.type = null;
         this.venue = null;
+
+
     }
 
     /**
@@ -257,9 +259,10 @@ public class Ticket implements Comparable<Ticket> {
      */
     @Override
     public int compareTo(Ticket other) {
-        if (this.price == null && other.price == null) return 0;
-        if (this.price == null) return -1;
-        if (other.price == null) return 1;
+        if (this.price < 0 && other.price < 0) return 0;
+        if (this.price < 0) return -1;
+        if (other.price < 0) return 1;
+
         return Integer.compare(this.price, other.price);
     }
 

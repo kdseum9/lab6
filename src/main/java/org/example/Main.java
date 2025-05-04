@@ -2,6 +2,9 @@ package org.example;
 
 import org.example.util.Console;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Главный класс приложения. Содержит точку входа — метод {@code main}.
  * Ожидает один аргумент командной строки — путь к XML-файлу с коллекцией билетов.
@@ -27,3 +30,4 @@ public class Main {
         }
     }
 }
+
