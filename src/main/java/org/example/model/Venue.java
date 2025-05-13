@@ -2,13 +2,15 @@ package org.example.model;
 
 import org.example.model.enums.VenueType;
 import org.example.model.generator.IdGenerator;
+
+import java.io.Serializable;
 import java.util.Objects;
 
 /**
  * Класс Venue представляет место проведения мероприятия.
  * Содержит уникальный идентификатор, название, вместимость и тип.
  */
-public class Venue {
+public class Venue implements Serializable {
     private Long id; // Поле не может быть null, значение должно быть больше 0 и генерироваться автоматически
     private String venueName; // Поле не может быть null и не должно быть пустым
     private Integer capacity; // Поле не может быть null, значение должно быть больше 0

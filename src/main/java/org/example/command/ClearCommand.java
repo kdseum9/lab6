@@ -1,6 +1,7 @@
 package org.example.command;
 
 import org.example.manager.CollectionManager;
+import org.example.share.*;
 
 /**
  * Команда для очистки коллекции.
@@ -17,18 +18,18 @@ public class ClearCommand extends AbstractCommand {
      * Выполняет команду clear.
      * Очищает коллекцию, если она содержит элементы.
      *
-     * @param args аргументы команды (не используются)
+     * @param request запрос, содержащий команду и параметры
      * @param collectionManager менеджер, управляющий коллекцией
-     * @return результат выполнения команды
+     * @return результат выполнения команды в виде объекта Response
      */
     @Override
-    public String execute(String[] args, CollectionManager collectionManager) {
+    public Response execute(Request request, CollectionManager collectionManager) {
         if (collectionManager.getCollection().isEmpty()) {
             logger.warn("Collection is already empty.");
-            return "Collection is already empty.";
+            return new Response("Collection is already empty.", null);
         }
         collectionManager.getCollection().clear();
         logger.info("Collection successfully cleared.");
-        return "Collection successfully cleared.";
+        return new Response("Collection successfully cleared.", null);
     }
 }

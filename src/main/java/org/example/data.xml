@@ -1,3 +1,4 @@
 <tickets>
-	<ticket><id>2</id><name>ticket1</name><creationDate>2025-04-26T01:03:29.289282700+03:00[Europe/Moscow]</creationDate><price>30</price><coordinate><x>1000000.0</x><y>10</y></coordinate><venueId>4</venueId><venueName>stadiun</venueName><capacity>500</capacity><venueType>null</venueType></ticket>
+	<ticket><id>2</id><name>first</name><creationDate>2025-05-13T13:35:21.034739700+03:00[Europe/Moscow]</creationDate><price>1</price><coordinate><x>1.0</x><y>1</y></coordinate><venueId>4</venueId><venueName>venue</venueName><capacity>3000</capacity><venueType>null</venueType></ticket>
+	<ticket><id>2</id><name>second</name><creationDate>2025-05-13T13:36:57.748094500+03:00[Europe/Moscow]</creationDate><price>1</price><coordinate><x>1.0</x><y>1</y></coordinate><venueId>8</venueId><venueName>venueeee</venueName><capacity>2</capacity><venueType>null</venueType></ticket>
 </tickets>

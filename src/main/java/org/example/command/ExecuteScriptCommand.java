@@ -2,12 +2,14 @@ package org.example.command;
 
 import org.example.manager.CollectionManager;
 import org.example.manager.CommandManager;
-import org.example.model.Coordinates;
-import org.example.model.Ticket;
 import org.example.manager.TicketValidator;
+import org.example.model.Coordinates;
 import org.example.model.Venue;
 import org.example.model.enums.TicketType;
 import org.example.model.enums.VenueType;
+import org.example.share.*;
+import org.example.model.Ticket;
+import org.example.model.generator.TicketInput;
 
 import java.io.*;
 import java.util.Arrays;
@@ -42,21 +44,23 @@ public class ExecuteScriptCommand extends AbstractCommand {
     /**
      * Выполняет скрипт из указанного файла.
      *
-     * @param args аргументы, где второй элемент (args[1]) — путь к скриптовому файлу
+     * @param request объект запроса, содержащий параметры (в том числе путь к файлу)
      * @param collectionManager менеджер коллекции, к которому применяются команды
-     * @return строка с результатом выполнения
+     * @return объект Response с результатом выполнения команды
      */
     @Override
-    public String execute(String[] args, CollectionManager collectionManager) {
+    public Response execute(Request request, CollectionManager collectionManager) {
+        String[] args = request.getArgs();
+
         if (args.length < 2) {
             logger.error("No script file specified.");
-            return "Error: No script file specified.";
+            return new Response("Error: No script file specified.", null);
         }
 
         String fileName = args[1];
         if (files.contains(fileName)) {
             logger.warn("Recursion detected for file '{}'. Skipping.", fileName);
-            return "Recursion skipped for file: " + fileName;
+            return new Response("Recursion skipped for file: " + fileName, null);
         }
 
         files.push(fileName);
@@ -66,12 +70,14 @@ public class ExecuteScriptCommand extends AbstractCommand {
             while ((command = readNonEmptyLine(reader)) != null) {
                 try {
                     String baseCommand = command.trim().split(" ")[0];
+                    Ticket ticket = null;
                     if (Arrays.asList(extraCommands).contains(baseCommand)) {
-                        Ticket ticket = parseTicketFromScript(reader);
+                        ticket = parseTicketFromScript(reader);
                         if (ticket == null) {
                             logger.warn("Skipping command '{}' due to invalid ticket data.", baseCommand);
                             continue;
                         }
+                        Request commandRequest = new Request(baseCommand, new String[]{baseCommand}, ticket);
 
                         switch (baseCommand) {
                             case "add" -> collectionManager.add(ticket);
@@ -83,7 +89,8 @@ public class ExecuteScriptCommand extends AbstractCommand {
 
                         logger.info("Executed extra command: {}", baseCommand);
                     } else {
-                        manager.doCommand(command.trim().split(" "));
+                        Request commandRequest = new Request(command.trim(), args, ticket);
+                        manager.doCommand(commandRequest, collectionManager);
                         logger.info("Executed command: {}", command);
                     }
                 } catch (Exception e) {
@@ -92,12 +99,12 @@ public class ExecuteScriptCommand extends AbstractCommand {
             }
         } catch (IOException e) {
             logger.error("Error reading script file '{}': {}", fileName, e.getMessage());
-            return "Error reading script file.";
+            return new Response("Error reading script file.", null);
         } finally {
             files.pop();
         }
 
-        return "Script executed successfully.";
+        return new Response("Script executed successfully.", null);
     }
 
     /**

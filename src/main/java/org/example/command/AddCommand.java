@@ -1,6 +1,8 @@
 package org.example.command;
 
 import org.example.manager.CollectionManager;
+import org.example.share.Request;
+import org.example.share.Response;
 import org.example.model.Ticket;
 import org.example.model.generator.TicketInput;
 
@@ -14,18 +16,24 @@ import org.example.model.generator.TicketInput;
 public class AddCommand extends AbstractCommand {
 
     /**
-     * Выполняет добавление нового элемента {@link Ticket} в коллекцию.
-     * Ввод данных осуществляется с помощью {@link TicketInput}.
+     * Выполняет команду с заданными аргументами и менеджером коллекции.
+     * Возвращает результат выполнения команды в виде объекта Response.
      *
-     * @param arg аргументы команды (не используются в данной реализации)
-     * @param collectionManager менеджер коллекции, в которую будет добавлен новый элемент
-     * @return сообщение об успешном добавлении
+     * @param request запрос, содержащий команду и параметры
+     * @param collectionManager объект, управляющий коллекцией элементов
+     * @return результат выполнения команды в виде объекта Response
      */
     @Override
-    public String execute(String[] arg, CollectionManager collectionManager) {
-        Ticket ticket = TicketInput.generateTicket();
-        collectionManager.add(ticket);
-        logger.info("Added Ticket: {}", ticket);
-        return "Ticket added successfully.";
+    public Response execute(Request request, CollectionManager collectionManager) {
+        Ticket ticket = request.getTicket();  // Генерация нового билета через TicketInput
+
+        if (ticket == null) {
+            return new Response("ERROR: Failed to generate ticket.", null);
+        }
+
+        collectionManager.add(ticket);  // Добавляем новый билет в коллекцию
+        logger.info("Ticket added: {}", ticket);
+
+        return new Response("Ticket added successfully.", ticket);  // Возвращаем успешный ответ
     }
 }

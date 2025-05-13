@@ -1,26 +1,24 @@
 package org.example.command;
 
 import org.example.manager.CollectionManager;
+import org.example.share.Request;
+import org.example.share.Response;
 
 /**
  * <p>Команда для отображения справки по всем доступным командам.</p>
- * <p>Выводит список всех команд с кратким описанием в консоль.</p>
- *
- * @author kdseum9
- * @version 1.0
+ * <p>Выводит список всех команд с кратким описанием.</p>
  */
 public class HelpCommand extends AbstractCommand {
 
     /**
-     * <p>Выполняет команду <code>help</code>.</p>
-     * <p>Выводит список всех доступных команд с кратким описанием.</p>
+     * Выполняет команду help.
      *
-     * @param arg аргументы команды (не используются)
-     * @param collectionManager менеджер, управляющий коллекцией
-     * @return пустая строка, так как результат выводится в консоль
+     * @param request объект запроса, содержащий аргументы команды
+     * @param collectionManager менеджер коллекции
+     * @return объект ответа с описанием доступных команд
      */
     @Override
-    public String execute(String[] arg, CollectionManager collectionManager) {
+    public Response execute(Request request, CollectionManager collectionManager) {
         String helpText = (
                 "Доступные команды:\n" +
                         "help : вывести справку по командам\n" +
@@ -42,8 +40,6 @@ public class HelpCommand extends AbstractCommand {
         );
 
         logger.info("Help command executed.");
-        System.out.println(helpText);
-
-        return "";
+        return new Response(helpText, null);
     }
 }

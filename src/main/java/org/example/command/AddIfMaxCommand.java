@@ -1,51 +1,53 @@
 package org.example.command;
 
 import org.example.manager.CollectionManager;
+import org.example.share.Request;
+import org.example.share.Response;
 import org.example.model.Ticket;
-import org.example.model.generator.TicketInput;
+
+import java.util.OptionalDouble;
 
 /**
- * Команда для добавления нового объекта Ticket в коллекцию,
- * если его цена больше, чем у любого другого объекта в коллекции.
- * Если коллекция пуста, элемент добавляется без сравнения.
- * <p>
- * Author kdseum9
- * version 1.0
+ * Команда для добавления объекта Ticket в коллекцию,
+ * если его цена больше, чем у любого другого объекта.
  */
 public class AddIfMaxCommand extends AbstractCommand {
 
     /**
-     * Выполняет команду add_if_max.
-     * Генерирует новый Ticket, сравнивает его цену с максимальной ценой в коллекции,
-     * и добавляет его, если она больше.
-     * <p>
-     * param args аргументы команды (не используются)
-     * param collectionManager менеджер, управляющий коллекцией
-     * return результат выполнения команды
+     * Выполняет команду с заданными аргументами и менеджером коллекции.
+     * Возвращает результат выполнения команды в виде объекта Response.
+     *
+     * @param request запрос, содержащий команду и параметры
+     * @param collectionManager объект, управляющий коллекцией элементов
+     * @return результат выполнения команды в виде объекта Response
      */
     @Override
-    public String execute(String[] args, CollectionManager collectionManager) {
+    public Response execute(Request request, CollectionManager collectionManager) {
+        Ticket ticket = request.getTicket();  // Получаем билет из запроса
 
-        Ticket ticket = TicketInput.generateTicket();
+        if (ticket == null) {
+            return new Response("ERROR: Ticket data is required but not provided.", null);
+        }
 
         if (collectionManager.getCollection().isEmpty()) {
             collectionManager.add(ticket);
             logger.info("Added ticket with price: {}", ticket.getPrice());
-            return "Ticket added.";
+            return new Response("Ticket added.", ticket);
         }
 
-        int maxPrice = collectionManager.getCollection().stream()
-                .mapToInt(Ticket::getPrice)
-                .max()
-                .orElse(Integer.MIN_VALUE);
+        OptionalDouble maxPriceOpt = collectionManager.getCollection().stream()
+                .mapToDouble(Ticket::getPrice)
+                .max();
+
+        double maxPrice = maxPriceOpt.orElse(Double.MIN_VALUE);
 
         if (ticket.getPrice() > maxPrice) {
             collectionManager.add(ticket);
             logger.info("Added ticket with price: {}", ticket.getPrice());
-            return "Ticket added.";
+            return new Response("Ticket added.", ticket);
         } else {
-            logger.info("Not added ticket with price: {} <= {}", ticket.getPrice(), maxPrice);
-            return "Not added ticket. Price not greater than max.";
+            logger.info("Ticket not added: price {} <= max price {}", ticket.getPrice(), maxPrice);
+            return new Response("Ticket not added. Price is not greater than the maximum.", null);
         }
     }
 }

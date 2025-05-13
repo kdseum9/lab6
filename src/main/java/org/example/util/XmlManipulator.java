@@ -1,6 +1,5 @@
 package org.example.util;
 
-import org.example.manager.CollectionManager;
 import org.example.manager.TicketValidator;
 import org.example.model.Coordinates;
 import org.example.model.Ticket;

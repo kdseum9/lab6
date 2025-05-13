@@ -2,32 +2,20 @@ package org.example.command;
 
 import org.example.manager.CollectionManager;
 import org.example.model.Ticket;
+import org.example.share.Request;
+import org.example.share.Response;
 
 import java.util.Optional;
 
-/**
- * <p>Команда для удаления объекта {@link Ticket} по его <code>ID</code>.</p>
- *
- * <p>Если объект с указанным ID найден в коллекции, он будет удалён.</p>
- *
- * @author kdseum9
- * @version 1.0
- */
 public class RemoveByIdCommand extends AbstractCommand {
 
-    /**
-     * <p>Выполняет команду <code>remove_by_id</code>.</p>
-     *
-     * @param args аргументы команды, где второй аргумент — ID
-     * @param collectionManager менеджер коллекции
-     * @return результат выполнения команды (null)
-     */
     @Override
-    public String execute(String[] args, CollectionManager collectionManager) {
+    public Response execute(Request request, CollectionManager collectionManager) {
+        String[] args = request.getArgs();
+
         if (args.length < 2) {
-            System.out.println("Please provide an ID.");
             logger.warn("ID was not provided for remove_by_id command.");
-            return null;
+            return new Response("Please provide an ID.", null);
         }
 
         try {
@@ -40,18 +28,16 @@ public class RemoveByIdCommand extends AbstractCommand {
 
             if (ticketToRemove.isPresent()) {
                 collectionManager.getCollection().remove(ticketToRemove.get());
-                System.out.println("Ticket with ID " + id + " was successfully removed.");
                 logger.info("Removed ticket with ID: {}", id);
+                return new Response("Ticket with ID " + id + " was successfully removed.", null);
             } else {
-                System.out.println("No ticket with ID " + id + " found.");
                 logger.info("No ticket found with ID: {}", id);
+                return new Response("No ticket with ID " + id + " found.", null);
             }
 
         } catch (NumberFormatException e) {
-            System.out.println("Invalid ID format. Please enter a numeric ID.");
             logger.error("Invalid ID format: {}", args[1], e);
+            return new Response("Invalid ID format. Please enter a numeric ID.", null);
         }
-
-        return null;
     }
 }

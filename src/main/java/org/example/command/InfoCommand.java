@@ -1,40 +1,31 @@
 package org.example.command;
 
 import org.example.manager.CollectionManager;
+import org.example.share.Request;
+import org.example.share.Response;
 
 /**
- * <p>Команда для отображения информации о текущей коллекции.</p>
- * <p>Выводит тип коллекции, её размер и время инициализации.</p>
- *
- * <p>Используется для получения общей информации о состоянии программы.</p>
- *
- * @author kdseum9
- * @version 1.0
+ * Команда для отображения информации о коллекции.
  */
 public class InfoCommand extends AbstractCommand {
 
     /**
-     * <p>Выполняет команду <code>info</code>.</p>
-     * <p>Выводит в консоль следующую информацию:</p>
-     * <ul>
-     *     <li>Тип используемой коллекции</li>
-     *     <li>Размер коллекции</li>
-     *     <li>Время инициализации коллекции</li>
-     * </ul>
+     * Выполняет команду info.
      *
-     * @param arg аргументы команды (не используются)
-     * @param manager менеджер, управляющий коллекцией
-     * @return <code>null</code> — результат выводится в консоль
+     * @param request объект запроса
+     * @param manager менеджер коллекции
+     * @return объект ответа с информацией о коллекции
      */
     @Override
-    public String execute(String[] arg, CollectionManager manager) {
+    public Response execute(Request request, CollectionManager manager) {
         logger.info("Executing 'info' command");
 
-        System.out.println("Application Info:");
-        System.out.println("- Collection type: " + manager.getCollection().getClass().getSimpleName());
-        System.out.println("- Collection size: " + manager.getCollection().size());
-        System.out.println("- Initialization time: " + manager.getTimeOfInitial());
+        StringBuilder sb = new StringBuilder();
+        sb.append("Application Info:\n");
+        sb.append("- Collection type: ").append(manager.getCollection().getClass().getSimpleName()).append("\n");
+        sb.append("- Collection size: ").append(manager.getCollection().size()).append("\n");
+        sb.append("- Initialization time: ").append(manager.getTimeOfInitial()).append("\n");
 
-        return null;
+        return new Response(sb.toString(), null);
     }
 }

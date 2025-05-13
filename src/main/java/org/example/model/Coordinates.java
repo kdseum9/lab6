@@ -1,9 +1,11 @@
 package org.example.model;
 
+import java.io.Serializable;
+
 /**
  * Класс, представляющий координаты с ограничением на X и обязательным Y.
  */
-public class Coordinates {
+public class Coordinates implements Serializable {
     private float x; // Максимальное значение: 300
     private Long y;  // Обязательное поле
 

@@ -2,55 +2,43 @@ package org.example.command;
 
 import org.example.manager.CollectionManager;
 import org.example.model.Ticket;
-import org.example.model.generator.TicketInput;
+import org.example.share.Request;
+import org.example.share.Response;
 
 import java.util.Iterator;
 
-/**
- * <p>Команда для удаления всех элементов коллекции {@link Ticket},
- * которые превышают заданный сгенерированный элемент.</p>
- *
- * <p>Сравнение выполняется на основе метода {@link Ticket#compareTo(Ticket)}.</p>
- *
- * @author kdseum9
- * @version 1.0
- */
 public class RemoveGreaterCommand extends AbstractCommand {
 
-    /**
-     * <p>Выполняет команду <code>remove_greater</code>.</p>
-     * <p>Генерирует новый {@link Ticket} и удаляет все элементы коллекции, которые "больше" его.</p>
-     *
-     * @param args аргументы команды (не используются)
-     * @param collectionManager менеджер коллекции
-     * @return результат выполнения команды (null)
-     */
     @Override
-    public String execute(String[] args, CollectionManager collectionManager) {
-        Ticket referenceTicket = TicketInput.generateTicket();
-        logger.info("Generated reference ticket: {}", referenceTicket);
+    public Response execute(Request request, CollectionManager collectionManager) {
+        Ticket referenceTicket = request.getTicket(); // Получаем Ticket от клиента
+
+        if (referenceTicket == null) {
+            logger.warn("Reference ticket was not provided in the request.");
+            return new Response("ERROR: Reference ticket was not provided.", null);
+        }
 
         int removedCount = 0;
-
         Iterator<Ticket> iterator = collectionManager.getCollection().iterator();
+
         while (iterator.hasNext()) {
             Ticket currentTicket = iterator.next();
             if (referenceTicket.compareTo(currentTicket) < 0) {
                 iterator.remove();
                 removedCount++;
                 logger.info("Removed ticket: {}", currentTicket);
-                System.out.println("Ticket deleted: " + currentTicket);
             }
         }
 
+        String resultMessage;
         if (removedCount == 0) {
-            System.out.println("No tickets were greater than the reference ticket.");
-            logger.info("No tickets were removed. All are less than or equal to the reference.");
+            resultMessage = "No tickets were greater than the reference ticket.";
+            logger.info("No tickets removed.");
         } else {
-            System.out.println("Total tickets removed: " + removedCount);
-            logger.info("Total tickets removed: {}", removedCount);
+            resultMessage = "Total tickets removed: " + removedCount;
+            logger.info("Removed {} ticket(s).", removedCount);
         }
 
-        return null;
+        return new Response(resultMessage, null);
     }
 }

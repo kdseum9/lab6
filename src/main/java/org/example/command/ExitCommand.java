@@ -1,6 +1,8 @@
 package org.example.command;
 
 import org.example.manager.CollectionManager;
+import org.example.share.Request;
+import org.example.share.Response;
 
 /**
  * Команда {@code exit} завершает выполнение программы.
@@ -16,14 +18,18 @@ public class ExitCommand extends AbstractCommand {
     /**
      * Выполняет команду завершения программы.
      *
-     * @param args аргументы команды (не используются)
-     * @param collectionManager менеджер коллекции (не используется)
-     * @return {@code null} (никогда не возвращается, поскольку программа завершается)
+     * @param request объект Request, который содержит команду и параметры
+     * @param collectionManager менеджер коллекции (не используется в данном случае)
+     * @return объект Response, содержащий результат выполнения команды
      */
     @Override
-    public String execute(String[] args, CollectionManager collectionManager) {
+    public Response execute(Request request, CollectionManager collectionManager) {
         logger.info("Exiting the program by user command.");
+
+        // Завершаем выполнение программы
         System.exit(0);
-        return null;
+
+        // Мы не вернемся из этого места, но нужно вернуть объект Response
+        return new Response("Exiting the program by user command.", null);
     }
 }

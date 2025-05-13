@@ -7,6 +7,7 @@ import org.example.model.enums.TicketType;
 import org.example.model.enums.VenueType;
 import org.example.model.generator.IdGenerator;
 
+import java.io.Serializable;
 import java.time.ZonedDateTime;
 import java.util.Objects;
 
@@ -16,7 +17,7 @@ import java.util.Objects;
  * <p>
  * Используется для хранения информации о билетах и генерации XML-представления.
  */
-public class Ticket implements Comparable<Ticket> {
+public class Ticket implements Comparable<Ticket>, Serializable {
 
     /**
      * Уникальный идентификатор билета. Генерируется автоматически, должен быть > 0.

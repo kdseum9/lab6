@@ -1,6 +1,9 @@
 package org.example.manager;
 
 import org.example.command.*;
+import org.example.model.Ticket;
+import org.example.share.Request;
+import org.example.share.Response;
 
 import java.util.HashMap;
 
@@ -9,16 +12,11 @@ import java.util.HashMap;
  * <p>Хранит отображение названий команд на соответствующие классы и передаёт управление при выполнении.</p>
  */
 public class CommandManager {
-    private final CollectionManager collectionManager;
+
     private final HashMap<String, AbstractCommand> commands = new HashMap<>();
 
-    /**
-     * Конструктор инициализирует все доступные команды.
-     *
-     * @param collectionManager менеджер коллекции, с которым работают команды
-     */
-    public CommandManager(CollectionManager collectionManager) {
-        this.collectionManager = collectionManager;
+
+    public CommandManager() {
 
         // Регистрация всех доступных команд
         commands.put("info", new InfoCommand());
@@ -42,18 +40,17 @@ public class CommandManager {
     /**
      * Выполняет команду, соответствующую переданному вводу.
      *
-     * @param input массив строк, где первый элемент — название команды, а остальные — её аргументы
+     * @param request
      */
-    public void doCommand(String[] input) {
-        String command = input[0];
-        if (commands.containsKey(command)) {
+    public Response doCommand(Request request, CollectionManager collectionManager) {
+        AbstractCommand command = commands.get(request.getCommandName());
+        if (command != null) {
             try {
-                commands.get(command).execute(input, collectionManager);
+                return command.execute(request, collectionManager);
             } catch (Exception e) {
-                System.out.println("ERROR: " + e.getMessage());
+                return new Response("Error executing command: " + e.getMessage(), null);
             }
-        } else {
-            System.out.println("Unknown command: " + command);
         }
+        return new Response("Unknown command: " + request.getCommandName(), null);
     }
 }

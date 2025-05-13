@@ -2,38 +2,24 @@ package org.example.command;
 
 import org.example.manager.CollectionManager;
 import org.example.model.Ticket;
+import org.example.share.Request;
+import org.example.share.Response;
 
-/**
- * <p>Команда для отображения всех элементов коллекции {@link Ticket}.</p>
- *
- * <p>Если коллекция пуста, будет выведено соответствующее сообщение.</p>
- *
- * <p><strong>Пример использования:</strong> <code>show</code></p>
- *
- * @author kdseum9
- * @version 1.0
- */
+import java.util.LinkedHashSet;
+import java.util.List;
+
 public class ShowCommand extends AbstractCommand {
 
-    /**
-     * <p>Выполняет команду <code>show</code>, выводя все элементы в коллекции.</p>
-     *
-     * @param arg аргументы команды (не используются)
-     * @param collectionManager менеджер, управляющий коллекцией
-     * @return {@code null} после выполнения
-     */
     @Override
-    public String execute(String[] arg, CollectionManager collectionManager) {
-        if (collectionManager.getCollection().isEmpty()) {
-            System.out.println("The collection is empty.");
+    public Response execute(Request request, CollectionManager collectionManager) {
+        LinkedHashSet<Ticket> collection = collectionManager.getCollection();
+
+        if (collection.isEmpty()) {
             logger.info("Show command executed: collection is empty.");
-        } else {
-            System.out.println("Displaying all elements in the collection:");
-            for (Ticket ticket : collectionManager.getCollection()) {
-                System.out.println(ticket);
-            }
-            logger.info("Show command executed: displayed all tickets.");
+            return new Response("The collection is empty.", null);
         }
-        return null;
+
+        logger.info("Show command executed: {} tickets displayed.", collection.size());
+        return new Response("Displaying all elements in the collection:", List.copyOf(collection));
     }
 }
