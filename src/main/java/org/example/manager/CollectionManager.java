@@ -1,7 +1,6 @@
 package org.example.manager;
 
 import org.example.model.Ticket;
-import org.example.model.generator.TicketInput;
 import org.example.util.XmlManipulator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,135 +8,170 @@ import org.slf4j.LoggerFactory;
 import java.time.LocalDateTime;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class CollectionManager  {
+public class CollectionManager {
     private final LocalDateTime timeOfInitial = LocalDateTime.now();
-    private LinkedHashSet<Ticket> collection = new LinkedHashSet<>();
+    private final LinkedHashSet<Ticket> collection = new LinkedHashSet<>();
     private final XmlManipulator xmlManipulator;
     private static final Logger logger = LoggerFactory.getLogger(CollectionManager.class);
+    private final ReadWriteLock rwLock = new ReentrantReadWriteLock();
+    private final Lock readLock = rwLock.readLock();
+    private final Lock writeLock = rwLock.writeLock();
 
     public CollectionManager(String xmlFilePath) {
         xmlManipulator = new XmlManipulator(xmlFilePath, collection);
         xmlManipulator.read();
     }
 
-    public
-    void add(Ticket ticket) {
-        collection.add(ticket);
-        logger.info("Added ticket: {}", ticket);
-    }
-
-    public void update(Ticket ticket) {
-        collection.remove(ticket);
-        collection.add(ticket);
-        logger.info("Updated ticket: {}", ticket);
-    }
-
-    public void delete(Ticket ticket) {
-        boolean removed = collection.remove(ticket);
-        if (removed) {
-            logger.info("Deleted ticket: {}", ticket);
-        } else {
-            logger.warn("Attempted to delete non-existent ticket: {}", ticket);
+    public void add(Ticket ticket) {
+        writeLock.lock();
+        try {
+            collection.add(ticket);
+            logger.info("Added ticket: {}", ticket);
+        } finally {
+            writeLock.unlock();
         }
     }
 
-    public void remove_lower(Ticket ticket) {
-        Ticket referenceTicket = TicketInput.generateTicket();
-        logger.info("Reference ticket for comparison: {}", referenceTicket);
+    public void update(Ticket updatedTicket) {
+        writeLock.lock();
+        try {
+            collection.removeIf(ticket -> ticket.getId() == updatedTicket.getId());
+            collection.add(updatedTicket);
+            logger.info("Updated ticket: {}", updatedTicket);
+        } finally {
+            writeLock.unlock();
+        }
+    }
 
-        int removedCount = 0;
-
-        Iterator<Ticket> iterator = getCollection().iterator();
-        while (iterator.hasNext()) {
-            Ticket currentTicket = iterator.next();
-            if (referenceTicket.compareTo(currentTicket) > 0) {
-                iterator.remove();
-                removedCount++;
-                logger.info("Removed ticket: {}", currentTicket);
-                System.out.println("Deleted ticket: " + currentTicket);
+    public void delete(Ticket ticketToDelete) {
+        writeLock.lock();
+        try {
+            boolean removed = collection.remove(ticketToDelete);
+            if (removed) {
+                logger.info("Deleted ticket: {}", ticketToDelete);
+            } else {
+                logger.warn("Attempted to delete non-existent ticket: {}", ticketToDelete);
             }
-        }
-
-        if (removedCount == 0) {
-            System.out.println("No tickets were lower than the reference ticket.");
-            logger.info("No tickets were removed.");
-        } else {
-            System.out.println("Total tickets removed: " + removedCount);
-            logger.info("Total tickets removed: {}", removedCount);
+        } finally {
+            writeLock.unlock();
         }
     }
 
-    public void remove_greater(Ticket ticket) {
-        Ticket referenceTicket = TicketInput.generateTicket();
-
-        int removedCount = 0;
-
-        Iterator<Ticket> iterator = getCollection().iterator();
-        while (iterator.hasNext()) {
-            Ticket currentTicket = iterator.next();
-            if (referenceTicket.compareTo(currentTicket) < 0) {
-                iterator.remove();
-                removedCount++;
-                logger.info("Removed ticket: {}", currentTicket);
-                System.out.println("Ticket deleted: " + currentTicket);
+    public void remove_lower(Ticket compareTicket) {
+        writeLock.lock();
+        try {
+            int removedCount = 0;
+            Iterator<Ticket> iterator = collection.iterator();
+            while (iterator.hasNext()) {
+                Ticket currentTicket = iterator.next();
+                if (compareTicket.compareTo(currentTicket) > 0) {
+                    iterator.remove();
+                    removedCount++;
+                    logger.info("Removed ticket: {}", currentTicket);
+                }
             }
+            logger.info("Total tickets removed (lower than {}): {}", compareTicket, removedCount);
+        } finally {
+            writeLock.unlock();
         }
-        if (removedCount == 0) {
-            System.out.println("No tickets were greater than the reference ticket.");
-            logger.info("No tickets were removed. All are less than the reference.");
-        } else {
-            System.out.println("Total tickets removed: " + removedCount);
-            logger.info("Total tickets removed: {}", removedCount);
+    }
+
+    public void remove_greater(Ticket compareTicket) {
+        writeLock.lock();
+        try {
+            int removedCount = 0;
+            Iterator<Ticket> iterator = collection.iterator();
+            while (iterator.hasNext()) {
+                Ticket currentTicket = iterator.next();
+                if (compareTicket.compareTo(currentTicket) < 0) {
+                    iterator.remove();
+                    removedCount++;
+                    logger.info("Removed ticket: {}", currentTicket);
+                }
+            }
+            logger.info("Total tickets removed (greater than {}): {}", compareTicket, removedCount);
+        } finally {
+            writeLock.unlock();
         }
     }
 
     public LocalDateTime getTimeOfInitial() {
-        return timeOfInitial;
+        readLock.lock();
+        try {
+            return timeOfInitial;
+        } finally {
+            readLock.unlock();
+        }
     }
 
     public LinkedHashSet<Ticket> getCollection() {
-        return collection;
+        readLock.lock();
+        try {
+            return new LinkedHashSet<>(collection);
+        } finally {
+            readLock.unlock();
+        }
     }
 
     public Ticket getById(long id) {
-        Ticket found = collection.stream()
-                .filter(t -> t.getId() == id)
-                .findFirst()
-                .orElse(null);
-        if (found != null) {
-            logger.info("Found ticket by ID {}: {}", id, found);
-        } else {
-            logger.warn("No ticket found with ID: {}", id);
+        readLock.lock();
+        try {
+            return collection.stream()
+                    .filter(t -> t.getId() == id)
+                    .findFirst()
+                    .orElse(null);
+        } finally {
+            readLock.unlock();
         }
-        return found;
     }
 
-    public void setCollection(LinkedHashSet<Ticket> collection) {
-        this.collection = collection;
-        logger.info("Collection replaced with new set (size: {})", collection.size());
+    public void setCollection(LinkedHashSet<Ticket> newCollection) {
+        writeLock.lock();
+        try {
+            collection.clear();
+            collection.addAll(newCollection);
+            logger.info("Collection replaced with new set (size: {})", collection.size());
+        } finally {
+            writeLock.unlock();
+        }
     }
 
     public XmlManipulator getXmlManipulator() {
-        return xmlManipulator;
+        readLock.lock();
+        try {
+            return xmlManipulator;
+        } finally {
+            readLock.unlock();
+        }
     }
 
-    public void add_if_max(Ticket ticket) {
-        if (getCollection().isEmpty()) {
-            add(ticket);
-            logger.info("Added ticket with price: {}", ticket.getPrice());
+    public boolean add_if_max(Ticket ticket) {
+        writeLock.lock();
+        try {
+            if (collection.isEmpty()) {
+                collection.add(ticket);
+                logger.info("Added ticket (collection was empty): {}", ticket);
+                return true;
+            }
 
-        }
+            Ticket maxTicket = collection.stream()
+                    .max(Ticket::compareTo)
+                    .orElse(null);
 
-        int maxPrice = getCollection().stream()
-                .mapToInt(Ticket::getPrice)
-                .max()
-                .orElse(Integer.MIN_VALUE);
-        if (ticket.getPrice() > maxPrice) {
-            add(ticket);
-            logger.info("Added ticket with price: {}", ticket.getPrice());
-        } else {
-            logger.info("Not added ticket with price: {} <= {}", ticket.getPrice(), maxPrice);
+            if (maxTicket != null && ticket.compareTo(maxTicket) > 0) {
+                collection.add(ticket);
+                logger.info("Added ticket (greater than max): {}", ticket);
+                return true;
+            } else {
+                logger.info("Not added ticket (not greater than max): {}", ticket);
+                return false;
+            }
+        } finally {
+            writeLock.unlock();
         }
     }
 }
