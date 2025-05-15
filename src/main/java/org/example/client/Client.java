@@ -10,10 +10,25 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.util.Scanner;
 
+/**
+ * Клиентское приложение для взаимодействия с сервером через TCP-соединение с использованием {@link SocketChannel}.
+ * <p>Позволяет отправлять команды, сериализованные в объект {@link Request}, и получать ответ {@link Response}.
+ * Поддерживает интерактивный режим и выполнение скриптов из файлов.</p>
+ */
 public class Client {
+
+    /** Адрес сервера. */
     private static final String SERVER_ADDRESS = "localhost";
+
+    /** Порт, на котором работает сервер. */
     private static final int SERVER_PORT = 9090;
 
+    /**
+     * Точка входа клиента. Устанавливает соединение с сервером, обрабатывает пользовательские команды.
+     *
+     * @param args аргументы командной строки (не используются)
+     * @throws InterruptedException если поток сна прерывается между попытками соединения
+     */
     public static void main(String[] args) throws InterruptedException {
         Scanner scanner = new Scanner(System.in);
         ScriptExecutor scriptExecutor = new ScriptExecutor();
@@ -67,6 +82,15 @@ public class Client {
         }
     }
 
+    /**
+     * Создает объект {@link Request} на основе введенной команды и дополнительных данных.
+     *
+     * @param scanner сканер для ввода данных пользователем
+     * @param socket активный сокет клиента
+     * @param command строка команды
+     * @param scriptExecutor исполнитель скриптов
+     * @return созданный объект запроса или {@code null}, если команда обрабатывается отдельно (например, скрипт)
+     */
     private static Request createRequest(Scanner scanner, SocketChannel socket, String command, ScriptExecutor scriptExecutor) {
         Request request = null;
         switch (command.toLowerCase()) {
@@ -120,6 +144,13 @@ public class Client {
         return request;
     }
 
+    /**
+     * Отправляет объект {@link Request} на сервер через сокет.
+     *
+     * @param socket активный {@link SocketChannel}
+     * @param request сериализуемый объект запроса
+     * @throws IOException при ошибке отправки
+     */
     public static void sendRequest(SocketChannel socket, Request request) throws IOException {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
@@ -132,6 +163,14 @@ public class Client {
         socket.write(buffer);
     }
 
+    /**
+     * Получает объект {@link Response} от сервера.
+     *
+     * @param socketChannel активный {@link SocketChannel}
+     * @return десериализованный {@link Response}
+     * @throws IOException при ошибке чтения
+     * @throws ClassNotFoundException если класс {@link Response} не найден
+     */
     public static Response receiveResponse(SocketChannel socketChannel) throws IOException, ClassNotFoundException {
         ByteBuffer lengthBuffer = ByteBuffer.allocate(4);
         while (lengthBuffer.hasRemaining()) {
@@ -155,5 +194,4 @@ public class Client {
         ObjectInputStream ois = new ObjectInputStream(bais);
         return (Response) ois.readObject();
     }
-
 }
