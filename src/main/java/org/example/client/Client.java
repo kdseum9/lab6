@@ -1,9 +1,8 @@
 package org.example.client;
 
-import org.example.model.Ticket;
-import org.example.model.generator.TicketInput;
-import org.example.share.Request;
-import org.example.share.Response;
+import org.example.common.model.Ticket;
+import org.example.common.Request;
+import org.example.common.Response;
 
 import java.io.*;
 import java.net.InetSocketAddress;
@@ -15,44 +14,47 @@ public class Client {
     private static final String SERVER_ADDRESS = "localhost";
     private static final int SERVER_PORT = 9090;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         Scanner scanner = new Scanner(System.in);
+        ScriptExecutor scriptExecutor = new ScriptExecutor();
 
         while (true) {
             SocketChannel socket = null;
             try {
-                // Подключение к серверу
-                InetSocketAddress address = new InetSocketAddress(SERVER_ADDRESS, SERVER_PORT);
                 socket = SocketChannel.open();
-                socket.connect(address);
+                socket.connect(new InetSocketAddress(SERVER_ADDRESS, SERVER_PORT));
                 System.out.println("Connected to server at " + SERVER_ADDRESS + ":" + SERVER_PORT);
 
-                // Считывание команды пользователя
-                System.out.print("Enter command: ");
-                String command = scanner.nextLine();
+                while (true) {
+                    try {
+                        System.out.print("Enter command: ");
+                        String command = scanner.nextLine();
 
-                // Если команда exit, завершаем работу клиента
-                if (command.equalsIgnoreCase("exit")) {
-                    System.out.println("Exiting...");
-                    break;
-                }
+                        if (command.equalsIgnoreCase("exit")) {
+                            System.out.println("Exiting...");
+                            break;
+                        }
 
-                Request request = createRequest(scanner, command);
+                        Request request = createRequest(scanner, socket, command, scriptExecutor);
 
-                if (request != null) {
-                    // Подготовка и отправка запроса на сервер
-                    sendRequest(socket, request);
+                        if (request != null) {
+                            sendRequest(socket, request);
+                            Response response = receiveResponse(socket);
+                            System.out.println("Server response: " + response.getMessage());
 
-                    // Получение ответа от сервера
-                    Response response = receiveResponse(socket);
-                    System.out.println("Server response: " + response.getMessage());
-                    if (response.getData() != null) {
-                        System.out.println("Server data: " + response.getData());
+                            if (response.getData() != null) {
+                                System.out.println("Server data: " + response.getData());
+                            }
+                        }
+
+                    } catch (Exception e) {
+                        System.out.println("Error during command processing: " + e.getMessage());
                     }
                 }
 
-            } catch (IOException | ClassNotFoundException e) {
-                System.err.println("Error: " + e.getMessage());
+            } catch (IOException e) {
+                System.err.println("Connection error: " + e.getMessage());
+                Thread.sleep(1000);
             } finally {
                 if (socket != null && socket.isConnected()) {
                     try {
@@ -63,10 +65,9 @@ public class Client {
                 }
             }
         }
-        scanner.close();
     }
 
-    private static Request createRequest(Scanner scanner, String command) {
+    private static Request createRequest(Scanner scanner, SocketChannel socket, String command, ScriptExecutor scriptExecutor) {
         Request request = null;
         switch (command.toLowerCase()) {
             case "add":
@@ -74,60 +75,56 @@ public class Client {
                 Ticket addTicket = TicketInput.generateTicket();
                 request = new Request(command, new String[0], addTicket);
                 break;
+
             case "update":
                 System.out.print("Enter ID of the ticket to update: ");
                 String idStr = scanner.nextLine();
                 try {
                     long id = Long.parseLong(idStr);
-                    Ticket updatedTicket = TicketInput.generateTicket(); // Запросить новые данные
+                    Ticket updatedTicket = TicketInput.generateTicket();
                     request = new Request(command, new String[]{String.valueOf(id)}, updatedTicket);
                 } catch (NumberFormatException e) {
                     System.err.println("Invalid ID format.");
                 }
                 break;
+
             case "remove_by_id":
                 System.out.print("Enter ID of the ticket to remove: ");
                 String removeIdStr = scanner.nextLine();
                 request = new Request(command, new String[]{removeIdStr}, null);
                 break;
+
             case "remove_greater":
             case "remove_lower":
                 Ticket compareTicket = TicketInput.generateTicket();
                 request = new Request(command, new String[0], compareTicket);
                 break;
+
             case "filter_starts_with":
                 System.out.print("Enter name prefix to filter: ");
                 String prefix = scanner.nextLine();
                 request = new Request(command, new String[]{prefix}, null);
                 break;
+
             case "execute_script":
                 System.out.print("Enter script file path: ");
                 String filePath = scanner.nextLine();
-                request = new Request(command, new String[]{filePath}, null);
-                break;
-            case "info":
-            case "show":
-            case "save":
-            case "print_descending":
-            case "help":
-            case "clear":
-            case "print_field_descending_discount":
-            case "exit": // Exit обрабатывается отдельно в main
+                scriptExecutor.executeScript(filePath, socket);
+                return null;
+
+            default:
                 request = new Request(command, new String[0], null);
                 break;
-            default:
-                System.out.println("Unknown command: " + command);
-                break;
         }
+
         return request;
     }
 
-    private static void sendRequest(SocketChannel socket, Request request) throws IOException {
+    public static void sendRequest(SocketChannel socket, Request request) throws IOException {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
 
         objectOutputStream.writeObject(request);
-
         objectOutputStream.flush();
         objectOutputStream.close();
 
@@ -135,26 +132,28 @@ public class Client {
         socket.write(buffer);
     }
 
-
-    private static Response receiveResponse(SocketChannel socket) throws IOException, ClassNotFoundException {
-        // Создаем буфер для приема длины (4 байта = int)
+    public static Response receiveResponse(SocketChannel socketChannel) throws IOException, ClassNotFoundException {
         ByteBuffer lengthBuffer = ByteBuffer.allocate(4);
         while (lengthBuffer.hasRemaining()) {
-            socket.read(lengthBuffer);
+            int read = socketChannel.read(lengthBuffer);
+            if (read == -1) {
+                throw new IOException("Connection closed before reading response length");
+            }
         }
         lengthBuffer.flip();
         int length = lengthBuffer.getInt();
 
-        // Читаем сам объект Response
         ByteBuffer dataBuffer = ByteBuffer.allocate(length);
         while (dataBuffer.hasRemaining()) {
-            socket.read(dataBuffer);
+            int read = socketChannel.read(dataBuffer);
+            if (read == -1) {
+                throw new IOException("Connection closed before reading full response");
+            }
         }
         dataBuffer.flip();
-
-        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(dataBuffer.array());
-        ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream);
-        return (Response) objectInputStream.readObject();
+        ByteArrayInputStream bais = new ByteArrayInputStream(dataBuffer.array());
+        ObjectInputStream ois = new ObjectInputStream(bais);
+        return (Response) ois.readObject();
     }
 
 }

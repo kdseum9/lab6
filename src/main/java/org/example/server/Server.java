@@ -1,9 +1,9 @@
 package org.example.server;
 
-import org.example.manager.CollectionManager;
-import org.example.manager.CommandManager;
-import org.example.share.Request;
-import org.example.share.Response;
+import org.example.server.manager.CollectionManager;
+import org.example.server.manager.CommandManager;
+import org.example.common.Request;
+import org.example.common.Response;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -27,6 +27,16 @@ public class Server {
     private static CollectionManager collectionManager;
 
     public static void main(String[] args) throws IOException, ClassNotFoundException {
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+
+            try {
+                collectionManager.getXmlManipulator().write();
+
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }));
 
         collectionManager = new CollectionManager(XML_FILE_PATH);
         commandManager = new CommandManager();
